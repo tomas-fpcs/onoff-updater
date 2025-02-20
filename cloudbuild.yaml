@@ -1,3 +1,6 @@
+substitutions:
+  _DEPLOY_REGION: europe-north1
+
 steps:
   # Check out the code from GitHub
   - name: 'gcr.io/cloud-builders/git'
@@ -18,21 +21,30 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: [ 'push', 'gcr.io/$PROJECT_ID/onoff-updater' ]
 
-  # Deploy the Docker image to Cloud Run
+  # Deploy the image as a Cloud Run Job
   - name: 'gcr.io/cloud-builders/gcloud'
     args:
       - run
+      - jobs
       - deploy
-      - onoff-updater
+      - onoff-updater-job  # Cloud Run Job name
+      - --image=gcr.io/$PROJECT_ID/onoff-updater
+      - --region=$_DEPLOY_REGION
+      - --task-timeout=900s # Max execution time (15 min)
       - --set-env-vars=SPRING_PROFILES_ACTIVE=prod
       - --set-env-vars=MONGODB_CONNECTION_STRING=$_MONGODB_CONNECTION_STRING
       - --set-env-vars=GOOGLE_CLOUD_PROJECT=$_GOOGLE_CLOUD_PROJECT
       - --set-env-vars=DEPLOY_REGION=$_DEPLOY_REGION
       - --set-env-vars=LOGGING_LEVEL_SE_FPCS=TRACE
-      - --image=gcr.io/$PROJECT_ID/onoff-updater
-      - --platform=managed
-      - --region=europe-north1
-      - --allow-unauthenticated
+
+  # Execute the Cloud Run Job immediately after deployment
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - run
+      - jobs
+      - execute
+      - onoff-updater-job
+      - --region=$_DEPLOY_REGION
 
 images:
   - 'gcr.io/$PROJECT_ID/onoff-updater'
