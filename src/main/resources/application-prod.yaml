@@ -1,0 +1,10 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+  data:
+    mongodb:
+      uri: ${MONGODB_CONNECTION_STRING}
+      database: ONOFF
+    rest:
+      enabled: false
