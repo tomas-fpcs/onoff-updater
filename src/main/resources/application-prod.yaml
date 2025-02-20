@@ -8,3 +8,7 @@ spring:
       database: ONOFF
     rest:
       enabled: false
+
+logging:
+  level:
+    root: INFO

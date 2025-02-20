@@ -16,15 +16,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationContext;
 import se.fpcs.elpris.onoff.db.DatabaseOperationException;
 import se.fpcs.elpris.onoff.price.PriceForHour;
 import se.fpcs.elpris.onoff.price.PriceRepository;
 import se.fpcs.elpris.onoff.price.PriceSource;
-import se.fpcs.elpris.onoff.price.PriceUpdaterStatus;
 import se.fpcs.elpris.onoff.price.PriceZone;
 import se.fpcs.elpris.onoff.price.source.elprisetjustnu.model.EPJN_Price;
 
 class EPJN_PriceUpdaterTest {
+
+  @Mock
+  private ApplicationContext ctx;
 
   @Mock
   private EPJN_Client client;
@@ -32,28 +35,24 @@ class EPJN_PriceUpdaterTest {
   @Mock
   private PriceRepository priceRepository;
 
-  @Mock
-  private PriceUpdaterStatus priceUpdaterStatus;
-
   private EPJN_PriceUpdater priceUpdater;
 
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    priceUpdater = new EPJN_PriceUpdater(client, priceRepository, priceUpdaterStatus);
+    priceUpdater = new EPJN_PriceUpdater(ctx,client, priceRepository);
   }
 
   @Test
-  void shouldCallGetContentForEachPriceZone() {
+  void shouldCallGetContentForEachPriceZone() throws Exception {
 
-    priceUpdater.refreshPrices();
+    priceUpdater.run(null);
 
     for (PriceZone priceZone : PriceZone.values()) {
       verify(client, atLeastOnce()).getPrices(anyString(), anyString(), anyString(),
           eq(priceZone.name()));
     }
 
-    verify(priceUpdaterStatus).setReady(PriceSource.ELPRISETJUSTNU);
   }
 
   @Test

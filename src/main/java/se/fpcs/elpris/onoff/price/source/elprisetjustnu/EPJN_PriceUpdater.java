@@ -4,7 +4,6 @@ import static se.fpcs.elpris.onoff.price.source.elprisetjustnu.EPJN_DateUtil.toH
 import static se.fpcs.elpris.onoff.price.source.elprisetjustnu.EPJN_DateUtil.toTimeMs;
 import static se.fpcs.elpris.onoff.price.source.elprisetjustnu.EPJN_DateUtil.toYYYYMMDD;
 
-import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -13,39 +12,40 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import se.fpcs.elpris.onoff.Constants;
 import se.fpcs.elpris.onoff.db.DatabaseOperationException;
 import se.fpcs.elpris.onoff.price.PriceForHour;
 import se.fpcs.elpris.onoff.price.PriceRepository;
 import se.fpcs.elpris.onoff.price.PriceSource;
-import se.fpcs.elpris.onoff.price.PriceUpdaterStatus;
 import se.fpcs.elpris.onoff.price.PriceZone;
 import se.fpcs.elpris.onoff.price.source.elprisetjustnu.model.EPJN_Price;
 
-@Service
+@Component
+@Order(1) // this CommandLineRunner instance should run first
 @RequiredArgsConstructor
 @Log4j2
 @Profile("!test")
-public class EPJN_PriceUpdater {
+public class EPJN_PriceUpdater implements CommandLineRunner {
 
+  private final ApplicationContext ctx;
   private final EPJN_Client client;
   private final PriceRepository priceRepository;
-  private final PriceUpdaterStatus priceUpdaterStatus;
 
-  @PostConstruct
-  @Scheduled(cron = "0 0 * * * *") // every hour
-  public void refreshPrices() {
+  @Override
+  public void run(String... args) throws Exception {
 
     Arrays.stream(PriceZone.values())
         .forEach(this::getContent);
-    this.priceUpdaterStatus.setReady(PriceSource.ELPRISETJUSTNU);
-    log.info("Prices updated from source: {}", PriceSource.ELPRISETJUSTNU);
+
+    log.info("Prices updated from source \"{}\", exiting application", PriceSource.ELPRISETJUSTNU);
 
   }
 
