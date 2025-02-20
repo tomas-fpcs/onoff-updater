@@ -1,45 +1,41 @@
 steps:
   # Check out the code from GitHub
   - name: 'gcr.io/cloud-builders/git'
-    args: [ 'clone', 'https://github.com/tomas-fpcs/onoff.git' ]
+    args: [ 'clone', 'https://github.com/tomas-fpcs/onoff-updater.git' ]
     dir: '/workspace'
 
   # Set up JDK 17 and build the project with Maven
   - name: 'gcr.io/cloud-builders/mvn'
     args: [ 'clean', 'install' ]
-    dir: 'onoff'
+    dir: 'onoff-updater'
 
   # Build the Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'build', '-t', 'gcr.io/$PROJECT_ID/onoff', '.' ]
-    dir: '/workspace/onoff'
+    args: [ 'build', '-t', 'gcr.io/$PROJECT_ID/onoff-updater', '.' ]
+    dir: '/workspace/onoff-updater'
 
   # Push the Docker image to Google Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'push', 'gcr.io/$PROJECT_ID/onoff' ]
+    args: [ 'push', 'gcr.io/$PROJECT_ID/onoff-updater' ]
 
   # Deploy the Docker image to Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
     args:
       - run
       - deploy
-      - onoff
+      - onoff-updater
       - --set-env-vars=SPRING_PROFILES_ACTIVE=prod
-      - --set-env-vars=GOOGLE_CLIENT_ID=$_GOOGLE_CLIENT_ID
-      - --set-env-vars=GOOGLE_CLIENT_SECRET=$_GOOGLE_CLIENT_SECRET
       - --set-env-vars=MONGODB_CONNECTION_STRING=$_MONGODB_CONNECTION_STRING
-      - --set-env-vars=JWT_SECRET_KEY=$_JWT_SECRET_KEY
-      - --set-env-vars=ONOFF_ADMIN_PASSWORD=$_ONOFF_ADMIN_PASSWORD
       - --set-env-vars=GOOGLE_CLOUD_PROJECT=$_GOOGLE_CLOUD_PROJECT
       - --set-env-vars=DEPLOY_REGION=$_DEPLOY_REGION
       - --set-env-vars=LOGGING_LEVEL_SE_FPCS=TRACE
-      - --image=gcr.io/$PROJECT_ID/onoff
+      - --image=gcr.io/$PROJECT_ID/onoff-updater
       - --platform=managed
       - --region=europe-north1
       - --allow-unauthenticated
 
 images:
-  - 'gcr.io/$PROJECT_ID/onoff'
+  - 'gcr.io/$PROJECT_ID/onoff-updater'
 
 options:
   logging: CLOUD_LOGGING_ONLY

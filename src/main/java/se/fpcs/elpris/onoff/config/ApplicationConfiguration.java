@@ -2,7 +2,6 @@ package se.fpcs.elpris.onoff.config;
 
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import java.security.KeyStore;
 import javax.net.ssl.TrustManagerFactory;
 import lombok.extern.log4j.Log4j2;

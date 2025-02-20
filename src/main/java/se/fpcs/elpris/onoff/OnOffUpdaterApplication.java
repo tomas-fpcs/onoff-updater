@@ -6,10 +6,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class OnOffApplication {
+public class OnOffUpdaterApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(OnOffApplication.class, args);
+    SpringApplication.run(OnOffUpdaterApplication.class, args);
   }
 
 }

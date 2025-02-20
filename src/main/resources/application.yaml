@@ -10,11 +10,6 @@ spring:
     rest:
       enabled: false
 
-springdoc:
-  api-docs:
-    path: /v3/api-docs
-  swagger-ui:
-    path: /swagger-ui.html
 
 management:
   endpoints:
@@ -24,9 +19,6 @@ management:
   endpoint:
     health:
       show-details: "always"
-
-ntp:
-  hostname: se.pool.ntp.org
 
 logging:
   level:
