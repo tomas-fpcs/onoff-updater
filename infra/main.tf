@@ -12,6 +12,21 @@ variable "service_name" {
   default = "onoff-updater"
 }
 
+# Enable Cloud Scheduler
+resource "google_project_service" "cloud_scheduler" {
+  project = var.project_id
+  service = "cloudscheduler.googleapis.com"
+}
+
+# Grant IAM Role to Cloud Build
+resource "google_project_iam_member" "cloud_build_scheduler_admin" {
+  project = var.project_id
+  role    = "roles/cloudscheduler.admin"
+  member  = "serviceAccount:${var.project_id}@appspot.gserviceaccount.com"
+
+  depends_on = [google_project_service.cloud_scheduler]
+}
+
 # Create a Service Account
 resource "google_service_account" "onoff_updater_sa" {
   account_id   = "onoff-updater-sa"
