@@ -1,11 +1,21 @@
 steps:
-  # Activate the service account
-#  - name: 'gcr.io/cloud-builders/gcloud'
-#    args:
-#      - auth
-#      - activate-service-account
-#      - $_SERVICE_ACCOUNT
-#    id: activate-service-account
+  # Retrieve the service account key from Secret Manager
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        echo "Retrieving service account key..."
+        gcloud secrets versions access latest --secret=SERVICE_ACCOUNT_KEY > /workspace/sa-key.json
+
+  # Activate the service account using the retrieved key file
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - auth
+      - activate-service-account
+      - $_SERVICE_ACCOUNT
+      - --key-file=/workspace/sa-key.json
+    id: activate-service-account
 
   # Check out the code from GitHub
   - name: 'gcr.io/cloud-builders/git'
