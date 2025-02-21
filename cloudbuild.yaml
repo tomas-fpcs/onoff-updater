@@ -6,7 +6,7 @@ steps:
       - "-c"
       - |
         echo "Retrieving service account key..."
-        gcloud secrets versions access latest --secret=SERVICE_ACCOUNT_KEY > /workspace/sa-key.json
+        gcloud secrets versions access latest --account=$_SERVICE_ACCOUNT --secret=SERVICE_ACCOUNT_KEY > /workspace/sa-key.json
 
   # Activate the service account using the retrieved key file
   - name: 'gcr.io/cloud-builders/gcloud'
