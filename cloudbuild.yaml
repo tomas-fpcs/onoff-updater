@@ -1,7 +1,3 @@
-substitutions:
-  _DEPLOY_REGION: europe-north1
-  _SERVICE_ACCOUNT: onoff-updater-sa@home-automation-18714.iam.gserviceaccount.com
-
 steps:
   # Check out the code from GitHub
   - name: 'gcr.io/cloud-builders/git'
@@ -54,6 +50,7 @@ steps:
       - jobs
       - describe
       - hourly-onoff-updater
+      - --account=$_SERVICE_ACCOUNT
       - --location=$_DEPLOY_REGION
     id: check-job
     waitFor: ['-']
