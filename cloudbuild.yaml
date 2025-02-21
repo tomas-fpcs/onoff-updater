@@ -1,4 +1,12 @@
 steps:
+  # Activate the service account
+#  - name: 'gcr.io/cloud-builders/gcloud'
+#    args:
+#      - auth
+#      - activate-service-account
+#      - $_SERVICE_ACCOUNT
+#    id: activate-service-account
+
   # Check out the code from GitHub
   - name: 'gcr.io/cloud-builders/git'
     args: [ 'clone', 'https://github.com/tomas-fpcs/onoff-updater.git' ]
