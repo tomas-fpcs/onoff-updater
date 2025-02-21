@@ -1,5 +1,6 @@
 substitutions:
   _DEPLOY_REGION: europe-north1
+  _SERVICE_ACCOUNT: onoff-updater-sa@home-automation-18714.iam.gserviceaccount.com
 
 steps:
   # Check out the code from GitHub
@@ -45,6 +46,49 @@ steps:
       - execute
       - onoff-updater-job
       - --region=$_DEPLOY_REGION
+
+  # Create or update the Cloud Scheduler job to run hourly
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - scheduler
+      - jobs
+      - describe
+      - hourly-onoff-updater
+      - --location=$_DEPLOY_REGION
+    id: check-job
+    waitFor: ['-']
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - scheduler
+      - jobs
+      - update
+      - http
+      - hourly-onoff-updater
+      - --schedule="0 * * * *"
+      - --uri="https://$_DEPLOY_REGION-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/$PROJECT_ID/jobs/onoff-updater-job:run"
+      - --http-method=POST
+      - --oauth-service-account-email=$_SERVICE_ACCOUNT
+      - --location=$_DEPLOY_REGION
+    id: update-job
+    waitFor: ['check-job']
+    allowFailure: true
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - scheduler
+      - jobs
+      - create
+      - http
+      - hourly-onoff-updater
+      - --schedule="0 * * * *"
+      - --uri="https://$_DEPLOY_REGION-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/$PROJECT_ID/jobs/onoff-updater-job:run"
+      - --http-method=POST
+      - --oauth-service-account-email=$_SERVICE_ACCOUNT
+      - --location=$_DEPLOY_REGION
+    id: create-job
+    waitFor: ['update-job']
+    allowFailure: true
 
 images:
   - 'gcr.io/$PROJECT_ID/onoff-updater'

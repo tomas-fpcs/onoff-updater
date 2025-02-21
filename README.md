@@ -23,6 +23,15 @@ See Configuration section above.
 
 The application will create a cluster name "Elpris0".
 
+## Terraform
+
+```
+cd infra
+gcloud auth application-default login
+terraform plan -var="project_id=<numeric project number>"
+terraform apply -var="project_id=<numeric project number>"
+```
+
 ### Code formatting
 
 Use this [template](intellij-java-google-style.xml) in IntelliJ
